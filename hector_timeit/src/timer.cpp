@@ -67,16 +67,12 @@ std::vector<long> Timer::getCpuRunTimes() const
 template<>
 std::unique_ptr<Timer::TimerResult<void>> Timer::time<void>( const std::function<void( void )> &function )
 {
-  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  long cpu_start;
-  bool cpu_time_valid = Timer::getCpuTime( cpu_start );
+  Timer timer( "anonymous" );
   function();
-  long cpu_end;
-  cpu_time_valid &= getCpuTime( cpu_end );
-  long time = internalGetDuration( start, std::chrono::high_resolution_clock::now());
+  timer.stop();
   std::unique_ptr<Timer::TimerResult<void> > result( new Timer::TimerResult<void>());
-  result->time = time;
-  result->cpu_time = cpu_time_valid ? cpu_end - cpu_start : -1;
+  result->time = timer.getElapsedTime();
+  result->cpu_time = timer.getElapsedCpuTime();
   return result;
 }
 
