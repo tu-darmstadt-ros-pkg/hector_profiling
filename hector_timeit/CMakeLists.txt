@@ -45,6 +45,9 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
+add_executable(${PROJECT_NAME}_demo src/demo.cpp)
+target_link_libraries(${PROJECT_NAME}_demo ${PROJECT_NAME})
+
 #############
 ## Install ##
 #############
