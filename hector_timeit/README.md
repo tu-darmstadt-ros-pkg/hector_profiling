@@ -1,9 +1,9 @@
-##!! This repo is in beta. Bugs may happen !!
+## !! This repo is in beta. Bugs may happen !!
 # Hector TimeIt
 This library provides a simple interface to time the execution of code lines or sections of code.   
 Code can be timed using the Timer class or a collection of convenience Macros.  
 
-####Dependencies
+#### Dependencies
 C++11  
 (ROS) If you are using the ROS macros otherwise it shouldn't be required.
 
