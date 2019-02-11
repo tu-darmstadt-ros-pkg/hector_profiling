@@ -12,10 +12,11 @@
 namespace hector_timeit
 {
 
-Timer::Timer( std::string name, TimeUnit print_time_unit )
+Timer::Timer( std::string name, TimeUnit print_time_unit, bool autostart )
   : elapsed_time_( 0 ), elapsed_cpu_time_( 0 ), running_( false ), name_( std::move( name ))
-    , print_time_unit_( print_time_unit ), cpu_time_valid_( true )
+    , print_time_unit_( print_time_unit ), cpu_time_valid_a_( true ), cpu_time_valid_b_( true )
 {
+  if ( autostart ) start();
 }
 
 void Timer::reset( bool new_run )
@@ -26,7 +27,7 @@ void Timer::reset( bool new_run )
     if ( elapsed_time_ > 0 )
     {
       run_times_.push_back( elapsed_time_ );
-      cpu_run_times_.push_back( cpu_time_valid_ ? elapsed_cpu_time_ : -1 );
+      cpu_run_times_.push_back( cpu_time_valid_a_ ? elapsed_cpu_time_ : -1 );
     }
   }
   else
@@ -36,7 +37,8 @@ void Timer::reset( bool new_run )
   }
   elapsed_time_ = 0;
   elapsed_cpu_time_ = 0;
-  cpu_time_valid_ = true;
+  cpu_time_valid_a_ = true;
+  cpu_time_valid_b_ = true;
 }
 
 std::vector<long> Timer::getRunTimes() const
@@ -65,28 +67,18 @@ std::vector<long> Timer::getCpuRunTimes() const
 template<>
 std::unique_ptr<Timer::TimerResult<void>> Timer::time<void>( const std::function<void( void )> &function )
 {
-  std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
-  long cpu_start;
-  bool cpu_time_valid = Timer::getCpuTime( cpu_start );
+  Timer timer( "anonymous" );
   function();
-  long cpu_end;
-  cpu_time_valid &= getCpuTime( cpu_end );
-  long time = internalGetDuration( start, std::chrono::high_resolution_clock::now());
+  timer.stop();
   std::unique_ptr<Timer::TimerResult<void> > result( new Timer::TimerResult<void>());
-  result->time = time;
-  result->cpu_time = cpu_time_valid ? cpu_end - cpu_start : -1;
+  result->time = timer.getElapsedTime();
+  result->cpu_time = timer.getElapsedCpuTime();
   return result;
 }
 
 std::string Timer::toString() const
 {
   return internalPrint( name_, getRunTimes(), getCpuRunTimes(), print_time_unit_ );
-}
-
-long Timer::internalGetDuration( const std::chrono::high_resolution_clock::time_point &start,
-                                 const std::chrono::high_resolution_clock::time_point &end )
-{
-  return std::chrono::duration_cast<std::chrono::nanoseconds>( end - start ).count();
 }
 
 namespace

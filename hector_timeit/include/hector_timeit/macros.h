@@ -46,19 +46,19 @@ _HECTOR_TIME_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_ROS, _HECTOR_TIME_ROS_INFO,
 /* ******************************************************************** */
 #define _HECTOR_TIMEN(code, count, name, stream) \
 do {\
-::hector_timeit::Timer hector_timeit_timer( name );\
+::hector_timeit::Timer hector_timeit_timer_4SFD78SFA8( name, ::hector_timeit::Timer::Default, false );\
 bool used_break = false;\
 for ( long i = 0; i < count; ++i ) \
 {\
 used_break = true;\
-hector_timeit_timer.start();\
+hector_timeit_timer_4SFD78SFA8.start();\
 code;\
-hector_timeit_timer.stop();\
+hector_timeit_timer_4SFD78SFA8.stop();\
 used_break = false;\
-hector_timeit_timer.reset( true );\
+hector_timeit_timer_4SFD78SFA8.reset( true );\
 }\
-if (used_break) hector_timeit_timer.stop();\
-stream << hector_timeit_timer.toString() << std::endl;\
+if (used_break) hector_timeit_timer_4SFD78SFA8.stop();\
+stream << hector_timeit_timer_4SFD78SFA8.toString() << std::endl;\
 } while (false)
 
 #define _HECTOR_TIMEN_CONSOLE_ANONYMOUS(code, count) _HECTOR_TIMEN(code, count, HECTOR_TIMEIT_ANONYMOUS_NAME, std::cout)
@@ -69,19 +69,18 @@ _HECTOR_TIMEN_GET_MACRO(__VA_ARGS__, _HECTOR_TIMEN, _HECTOR_TIMEN_CONSOLE, _HECT
 
 #define _HECTOR_TIMEN_ROS(code, count, name, level) \
 do {\
-::hector_timeit::Timer hector_timeit_timer( name );\
-bool used_break = false;\
+::hector_timeit::Timer hector_timeit_timer_4SFD78SFA8( name, ::hector_timeit::Timer::Default, false );\
 for ( long i = 0; i < count; ++i ) \
 {\
 used_break = true;\
-hector_timeit_timer.start();\
+hector_timeit_timer_4SFD78SFA8.start();\
 code;\
-hector_timeit_timer.stop();\
+hector_timeit_timer_4SFD78SFA8.stop();\
 used_break = false;\
-hector_timeit_timer.reset( true );\
+hector_timeit_timer_4SFD78SFA8.reset( true );\
 }\
-if (used_break) hector_timeit_timer.stop();\
-ROS_##level("%s", hector_timeit_timer.toString().c_str());\
+if (used_break) hector_timeit_timer_4SFD78SFA8.stop();\
+ROS_##level("%s", hector_timeit_timer_4SFD78SFA8.toString().c_str());\
 } while (false)
 
 #define _HECTOR_TIMEN_ROS_INFO(code, count, name) _HECTOR_TIMEN_ROS(code, count,name, INFO)
@@ -136,9 +135,7 @@ _HECTOR_TIME_AND_RETURN_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_AND_RETURN_ROS, 
 /* ******************************************************************** */
 /* ************************ Hector time section *********************** */
 /* ******************************************************************** */ // TODO
-#define HECTOR_TIME_SECTION(sectionname) \
-  ::hector_timeit::Timer __hector_timeit_timer_##sectionname(#sectionname);\
-  __hector_timeit_timer_##sectionname.start()
+#define HECTOR_TIME_SECTION(sectionname) ::hector_timeit::Timer __hector_timeit_timer_##sectionname(#sectionname);
 
 #define HECTOR_TIME_SECTION_PAUSE(sectionname) \
   __hector_timeit_timer_##sectionname.stop()

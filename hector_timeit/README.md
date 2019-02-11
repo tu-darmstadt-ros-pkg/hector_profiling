@@ -1,9 +1,9 @@
-##!! This repo is in beta. Bugs may happen !!
+## !! This repo is in beta. Bugs may happen !!
 # Hector TimeIt
 This library provides a simple interface to time the execution of code lines or sections of code.   
 Code can be timed using the Timer class or a collection of convenience Macros.  
 
-####Dependencies
+#### Dependencies
 C++11  
 (ROS) If you are using the ROS macros otherwise it shouldn't be required.
 
@@ -13,7 +13,6 @@ Simply timing some code using the default settings:
   
 ```cpp
 hector_timeit::Timer timer("MyTimer");
-timer.start();
 /* code */
 timer.stop();
 std::cout << timer;
@@ -24,7 +23,8 @@ std::cout << timer;
 Timing multiple runs of the same code, e.g., the average run time of the iterations of for loop.
 
 ```cpp
-hector_timeit::Timer timer("IterationTimer");
+// Pass false to constructor for autostart parameter
+hector_timeit::Timer timer("IterationTimer", hector_timeit::Timer::Default, false );
 for (size_t i = 0; i < some_vector.size(); ++i)
 {
   timer.start();
@@ -109,19 +109,21 @@ HECTOR_TIME_SECTION_END_AND_PRINT(IterationTimer);
 >  Thread           30.804us +- 24.064us             248.257us        6.110us        218.865ms
 >```
 ## API
-####Timer
+#### Timer
 * `static std::unique_ptr<TimerResult<T>> time( const std::function<T( void )> &function )`
 function: A function whose execution time is timed.  
 returns A struct containing the result of the function (if it isn't void) and the elapsed real and cpu time.
-* constructor `Timer(std::string name, Timer::TimeUnit print_time_unit)`  
-name: The name of the timer.  
-print_time_unit: The time unit used for printing can be one of the following:
+* constructor `Timer(std::string name, Timer::TimeUnit print_time_unit = Timer::Default, bool autostart = true)`  
+`name`: The name of the timer.  
+`print_time_unit`: The time unit used for printing can be one of the following:
   * Nanoseconds
   * Microseconds
   * Milliseconds
   * Seconds
   * Default  
-Default automatically determines the unit depending on the magnitude of the measured time value.
+Default automatically determines the unit depending on the magnitude of the measured time value.  
+
+  `autostart`: Whether or not to immediately start the timer.
 * `void start()`  
 Starts the timer if it isn't already running
 * `void stop()`  
@@ -142,7 +144,7 @@ Returns a vector containing the elapsed cpu or thread time (depending on what is
 * `std::string toString()`  
 Prints the data contained in this Timer in a pleasantly readable format. Check the examples for examples.
 
-####Macros
+#### Macros
 * `HECTOR_TIME(code[, name[, stream]])`  
 `code`: The code that is timed.  
 `name`: The name of the timer.  
@@ -170,7 +172,7 @@ Times the execution of the given code and returns what the given code returned.
 
 * `HECTOR_TIME_AND_RETURN_ROS(type, code[, name[, level]])`
 
-#####Time section macros
+##### Time section macros
 * `HECTOR_TIME_SECTION(sectionname)`  
 `sectionname`: Name of the section. Unlike the previous string attribute name this string property can not be quoted and
  can only contain characters that are acceptable in a variable name.  
