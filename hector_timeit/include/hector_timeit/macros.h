@@ -23,7 +23,7 @@ std::string( "anonymous timer at " ) + ([] () {\
 /* *************** Time for console and ros definitions *************** */
 /* ******************************************************************** */
 #define _HECTOR_TIME(code, name, stream) \
-stream << hector_timeit::Timer::time(std::function<void(void)>([&] () { code; }))->toString( name ) << std::endl
+stream << ::hector_timeit::Timer::time(std::function<void(void)>([&] () { code; }))->toString( name ) << std::endl
 
 #define _HECTOR_TIME_CONSOLE_ANONYMOUS(code) _HECTOR_TIME(code, HECTOR_TIMEIT_ANONYMOUS_NAME, std::cout)
 #define _HECTOR_TIME_CONSOLE(code, name) _HECTOR_TIME(code, name, std::cout)
@@ -32,7 +32,7 @@ stream << hector_timeit::Timer::time(std::function<void(void)>([&] () { code; })
 _HECTOR_TIME_GET_MACRO(__VA_ARGS__, _HECTOR_TIME, _HECTOR_TIME_CONSOLE, _HECTOR_TIME_CONSOLE_ANONYMOUS)(__VA_ARGS__)
 
 #define _HECTOR_TIME_ROS(code, name, level) \
-ROS_##level("%s", hector_timeit::Timer::time(std::function<void(void)>([&] () { code; }))->toString(name).c_str())
+ROS_##level("%s", ::hector_timeit::Timer::time(std::function<void(void)>([&] () { code; }))->toString(name).c_str())
 
 #define _HECTOR_TIME_ROS_INFO(code, name) _HECTOR_TIME_ROS(code, name, INFO)
 #define _HECTOR_TIME_ROS_INFO_LINE(code) _HECTOR_TIME_ROS(code, HECTOR_TIMEIT_ANONYMOUS_NAME, INFO)
@@ -46,7 +46,7 @@ _HECTOR_TIME_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_ROS, _HECTOR_TIME_ROS_INFO,
 /* ******************************************************************** */
 #define _HECTOR_TIMEN(code, count, name, stream) \
 do {\
-hector_timeit::Timer hector_timeit_timer( name );\
+::hector_timeit::Timer hector_timeit_timer( name );\
 bool used_break = false;\
 for ( long i = 0; i < count; ++i ) \
 {\
@@ -69,7 +69,7 @@ _HECTOR_TIMEN_GET_MACRO(__VA_ARGS__, _HECTOR_TIMEN, _HECTOR_TIMEN_CONSOLE, _HECT
 
 #define _HECTOR_TIMEN_ROS(code, count, name, level) \
 do {\
-hector_timeit::Timer hector_timeit_timer( name );\
+::hector_timeit::Timer hector_timeit_timer( name );\
 bool used_break = false;\
 for ( long i = 0; i < count; ++i ) \
 {\
@@ -93,25 +93,42 @@ _HECTOR_TIMEN_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIMEN_ROS, _HECTOR_TIMEN_ROS_IN
 /* ******************************************************************** */
 /* ********* Time and return for console and ros definitions ********** */
 /* ******************************************************************** */
-#define _HECTOR_TIME_AND_RETURN(type, code, name, stream) ([&] () {\
-auto timer_result = hector_timeit::Timer::time(std::function<type(void)>([&] () { return code; }));\
+// We need to define a helper struct to allow types that have to be wrapped by parenthesis because they contain commas,
+// e.g., std::map<int, int>. See https://stackoverflow.com/questions/13842468/comma-in-c-c-macro
+namespace hector_timeit
+{
+namespace macros
+{
+template<typename T>
+struct argument_type;
+
+template<typename T, typename U>
+struct argument_type<T( U )>
+{
+  typedef U type;
+};
+}
+}
+
+#define _HECTOR_TIME_AND_RETURN(return_type, code, name, stream) ([&] () {\
+auto timer_result = ::hector_timeit::Timer::time(std::function<::hector_timeit::macros::argument_type<void(return_type)>::type (void)>([&] () { return code; }));\
 stream << timer_result->toString( name ) << std::endl;\
 return std::move( timer_result->result );\
 })()
 
-#define _HECTOR_TIME_AND_RETURN_CONSOLE_ANONYMOUS(type, code) _HECTOR_TIME_AND_RETURN(type, code, HECTOR_TIMEIT_ANONYMOUS_NAME, std::cout)
-#define _HECTOR_TIME_AND_RETURN_CONSOLE(type, code, name) _HECTOR_TIME_AND_RETURN(type, code, name, std::cout)
+#define _HECTOR_TIME_AND_RETURN_CONSOLE_ANONYMOUS(return_type, code) _HECTOR_TIME_AND_RETURN(return_type, code, HECTOR_TIMEIT_ANONYMOUS_NAME, std::cout)
+#define _HECTOR_TIME_AND_RETURN_CONSOLE(return_type, code, name) _HECTOR_TIME_AND_RETURN(return_type, code, name, std::cout)
 #define _HECTOR_TIME_AND_RETURN_GET_MACRO(_1, _2, _3, _4, name, ...) name
 #define HECTOR_TIME_AND_RETURN(...) \
 _HECTOR_TIME_AND_RETURN_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_AND_RETURN, _HECTOR_TIME_AND_RETURN_CONSOLE, _HECTOR_TIME_AND_RETURN_CONSOLE_ANONYMOUS)(__VA_ARGS__)
 
-#define _HECTOR_TIME_AND_RETURN_ROS(type, code, name, level) ([&] () {\
-auto timer_result = hector_timeit::Timer::time(std::function<type(void)>([&] () { return code; }));\
+#define _HECTOR_TIME_AND_RETURN_ROS(return_type, code, name, level) ([&] () {\
+auto timer_result = ::hector_timeit::Timer::time(std::function<::hector_timeit::macros::argument_type<void(return_type)>::type (void)>([&] () { return code; }));\
 ROS_##level( "%s", timer_result->toString( name ).c_str());\
 return std::move( timer_result->result );\
 })()
-#define _HECTOR_TIME_AND_RETURN_ROS_INFO(type, code, name) _HECTOR_TIME_AND_RETURN_ROS(type, code, name, INFO)
-#define _HECTOR_TIME_AND_RETURN_ROS_INFO_LINE(type, code) _HECTOR_TIME_AND_RETURN_ROS(type, code, HECTOR_TIMEIT_ANONYMOUS_NAME, INFO)
+#define _HECTOR_TIME_AND_RETURN_ROS_INFO(return_type, code, name) _HECTOR_TIME_AND_RETURN_ROS(return_type, code, name, INFO)
+#define _HECTOR_TIME_AND_RETURN_ROS_INFO_LINE(return_type, code) _HECTOR_TIME_AND_RETURN_ROS(return_type, code, HECTOR_TIMEIT_ANONYMOUS_NAME, INFO)
 #define _HECTOR_TIME_AND_RETURN_ROS_GET_MACRO(_1, _2, _3, _4, name, ...) name
 #define HECTOR_TIME_AND_RETURN_ROS(...) \
 _HECTOR_TIME_AND_RETURN_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_AND_RETURN_ROS, _HECTOR_TIME_AND_RETURN_ROS_INFO, _HECTOR_TIME_AND_RETURN_ROS_INFO_LINE)(__VA_ARGS__)
@@ -120,7 +137,7 @@ _HECTOR_TIME_AND_RETURN_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_AND_RETURN_ROS, 
 /* ************************ Hector time section *********************** */
 /* ******************************************************************** */ // TODO
 #define HECTOR_TIME_SECTION(sectionname) \
-  hector_timeit::Timer __hector_timeit_timer_##sectionname(#sectionname);\
+  ::hector_timeit::Timer __hector_timeit_timer_##sectionname(#sectionname);\
   __hector_timeit_timer_##sectionname.start()
 
 #define HECTOR_TIME_SECTION_PAUSE(sectionname) \
