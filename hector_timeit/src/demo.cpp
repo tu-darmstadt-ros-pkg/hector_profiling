@@ -54,12 +54,13 @@ int main(int argc, char **argv)
     fibonacci_b = 2;
 
     auto start = std::chrono::high_resolution_clock::now();
+    auto end = start;
     for ( long i = 0; i < iterations; ++i )
     {
       fibonacci_a = fibonacci_a * fibonacci_a + fibonacci_b * fibonacci_b;
       fibonacci_b = sqrtl(fibonacci_a + fibonacci_b);
       asm("");
-      auto end = std::chrono::high_resolution_clock::now();
+      end = std::chrono::high_resolution_clock::now();
       elapsed += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
       start = std::chrono::high_resolution_clock::now();
     }
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
       fibonacci_b = sqrtl(fibonacci_a + fibonacci_b);
       asm("");
     }
-    auto end = std::chrono::high_resolution_clock::now();
+    end = std::chrono::high_resolution_clock::now();
     long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
     long diff_timer = labs(duration - timer.getElapsedTime());

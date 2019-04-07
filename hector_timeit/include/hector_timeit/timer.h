@@ -5,8 +5,6 @@
 #ifndef HECTOR_TIMEIT_TIMER_H
 #define HECTOR_TIMEIT_TIMER_H
 
-#include "hector_timeit/macros.h"
-
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -83,6 +81,8 @@ public:
    *  using the start() method.
    */
   explicit Timer( std::string name, TimeUnit print_time_unit = Default, bool autostart = true );
+
+  const std::string &name() const { return name_; }
 
   /*!
    * Starts the timer if it isn't already running.
@@ -256,10 +256,8 @@ std::unique_ptr<Timer::TimerResult<T>> Timer::time( const std::function<T( void 
   Timer timer( "anonymous" );
   T function_result = function();
   timer.stop();
-  std::unique_ptr<Timer::TimerResult<T> > result( new Timer::TimerResult<T>());
-  result->time = timer.getElapsedTime();
-  result->cpu_time = timer.getElapsedCpuTime();
-  result->result = std::move( function_result );
+  std::unique_ptr<Timer::TimerResult<T> > result(
+    new Timer::TimerResult<T>{ .time = timer.getElapsedTime(), .cpu_time = timer.getElapsedCpuTime(), .result = function_result } );
   return result;
 }
 
@@ -280,5 +278,7 @@ std::unique_ptr<Timer::TimerResult<void>> Timer::time<void>( const std::function
 }
 
 std::ostream &operator<<(std::ostream &stream, const hector_timeit::Timer &timer);
+
+#include "hector_timeit/macros.h"
 
 #endif //HECTOR_TIMEIT_TIMER_H

@@ -48,6 +48,16 @@ target_link_libraries(${PROJECT_NAME}
 add_executable(${PROJECT_NAME}_demo src/demo.cpp)
 target_link_libraries(${PROJECT_NAME}_demo ${PROJECT_NAME})
 
+
+#########
+# TESTS #
+#########
+
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(${PROJECT_NAME}_tests test/tests.cpp)
+  target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME})
+endif()
+
 #############
 ## Install ##
 #############
