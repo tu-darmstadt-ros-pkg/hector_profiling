@@ -13,8 +13,8 @@ namespace hector_timeit
 {
 
 Timer::Timer( std::string name, TimeUnit print_time_unit, bool autostart )
-  : elapsed_time_( 0 ), elapsed_cpu_time_( 0 ), running_( false ), name_( std::move( name ))
-    , print_time_unit_( print_time_unit ), cpu_time_valid_a_( true ), cpu_time_valid_b_( true )
+  : name_( std::move( name )), print_time_unit_( print_time_unit ), elapsed_time_( 0 ), elapsed_cpu_time_( 0 )
+    , running_( false ), cpu_time_valid_a_( true ), cpu_time_valid_b_( true )
 {
   if ( autostart ) start();
 }
@@ -83,9 +83,9 @@ std::string Timer::toString() const
 
 namespace
 {
-void printPaddedString( std::ostringstream &stream, const std::string &text, int pad = 0 )
+void printPaddedString( std::ostringstream &stream, const std::string &text, size_t pad = 0 )
 {
-  int i = 0;
+  size_t i = 0;
   for ( ; pad != 0 && i < (pad - text.length()) / 2; ++i ) stream << " ";
   stream << text;
   for ( i += text.length(); i < pad; ++i ) stream << " ";

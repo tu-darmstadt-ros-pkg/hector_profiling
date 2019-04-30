@@ -7,7 +7,7 @@
 #include "hector_timeit/timer.h"
 
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
   std::cout << "Hector TimeIt demo v1.0" << std::endl << std::endl;
 

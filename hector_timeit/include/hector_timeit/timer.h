@@ -135,8 +135,8 @@ public:
   {
     if ( !running_ ) return;
     // See start method for a documentation of the algorithm used to get precise time measurements
-    long time_a;
-    long time_b;
+    long time_a = 0;
+    long time_b = 0;
     if ( cpu_time_valid_a_ )
     {
       if ( cpu_time_valid_b_ )
@@ -235,17 +235,17 @@ protected:
     return std::chrono::duration_cast<std::chrono::nanoseconds>( end - start ).count();
   }
 
-  std::string name_;
-  bool running_;
   std::vector<long> run_times_;
   std::vector<long> cpu_run_times_;
-  long elapsed_time_;
-  long elapsed_cpu_time_;
+  std::string name_;
+  TimeUnit print_time_unit_;
   std::chrono::high_resolution_clock::time_point start_a_;
   std::chrono::high_resolution_clock::time_point start_b_;
+  long elapsed_time_;
+  long elapsed_cpu_time_;
   long cpu_start_a_;
   long cpu_start_b_;
-  TimeUnit print_time_unit_;
+  bool running_;
   bool cpu_time_valid_a_;
   bool cpu_time_valid_b_;
 };
