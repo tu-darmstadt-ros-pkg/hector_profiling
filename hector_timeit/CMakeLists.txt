@@ -55,8 +55,10 @@ target_link_libraries(${PROJECT_NAME}_demo ${PROJECT_NAME})
 #########
 
 if (CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(${PROJECT_NAME}_tests test/tests.cpp)
-  target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME})
+  find_package(rostest REQUIRED)
+
+  add_rostest_gtest(tests_${PROJECT_NAME} test/all_tests.test test/tests.cpp)
+  target_link_libraries(tests_${PROJECT_NAME} ${PROJECT_NAME})
 endif()
 
 #############
