@@ -12,11 +12,15 @@
 namespace hector_timeit
 {
 
-Timer::Timer( std::string name, TimeUnit print_time_unit, bool autostart )
-  : name_( std::move( name )), print_time_unit_( print_time_unit ), elapsed_time_( 0 ), elapsed_cpu_time_( 0 )
-    , running_( false ), cpu_time_valid_a_( true ), cpu_time_valid_b_( true )
+Timer::Timer( std::string name, TimeUnit print_time_unit, bool autostart, bool print_on_destruct )
+  : name_( std::move( name )), print_time_unit_( print_time_unit ), print_on_destruct_( print_on_destruct )
 {
   if ( autostart ) start();
+}
+
+Timer::~Timer()
+{
+  if ( print_on_destruct_ ) std::cout << *this << std::endl;
 }
 
 void Timer::reset( bool new_run )
@@ -52,6 +56,7 @@ std::vector<long> Timer::getRunTimes() const
   return result;
 }
 
+
 std::vector<long> Timer::getCpuRunTimes() const
 {
   std::vector<long> result = cpu_run_times_;
@@ -62,7 +67,6 @@ std::vector<long> Timer::getCpuRunTimes() const
   }
   return result;
 }
-
 
 template<>
 std::unique_ptr<Timer::TimerResult<void>> Timer::time<void>( const std::function<void( void )> &function )
@@ -210,7 +214,7 @@ std::string Timer::internalPrint( const std::string &name, const std::vector<lon
   {
     stringstream << std::endl;
     printPaddedString( stringstream, "Type", 8 );
-    printPaddedString( stringstream, "Average", 40 );
+    printPaddedString( stringstream, "Mean (+/- stddev)", 40 );
     printPaddedString( stringstream, "Longest", 16 );
     printPaddedString( stringstream, "Shortest", 16 );
     printPaddedString( stringstream, "Sum", 16 );

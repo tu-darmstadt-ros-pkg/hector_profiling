@@ -6,8 +6,17 @@
 
 #include "hector_timeit/timer.h"
 
+void someFunction()
+{
+  HECTOR_TIME_BLOCK( someFunction );
+  constexpr long iterations = 1000 * 1000 * 1000;
+  for ( long i = 0; i < iterations; ++i )
+  {
+    asm("");
+  }
+}
 
-int main(int, char **)
+int main( int, char ** )
 {
   std::cout << "Hector TimeIt demo v1.0" << std::endl << std::endl;
 
@@ -30,7 +39,8 @@ int main(int, char **)
   }
 
   {
-    std::cout << std::endl << "Measuring accuracy of timing adjustment (Removal of execution time for get time calls) with 10^6 iterations."
+    std::cout << std::endl
+              << "Measuring accuracy of timing adjustment (Removal of execution time for get time calls) with 10^6 iterations."
               << std::endl;
     constexpr long iterations = 1000 * 1000;
     long double fibonacci_a = 1;
@@ -41,7 +51,7 @@ int main(int, char **)
     for ( long i = 0; i < iterations; ++i )
     {
       fibonacci_a = fibonacci_a * fibonacci_a + fibonacci_b * fibonacci_b;
-      fibonacci_b = sqrtl(fibonacci_a + fibonacci_b);
+      fibonacci_b = sqrtl( fibonacci_a + fibonacci_b );
       asm("");
       timer.stop();
       timer.start();
@@ -58,10 +68,10 @@ int main(int, char **)
     for ( long i = 0; i < iterations; ++i )
     {
       fibonacci_a = fibonacci_a * fibonacci_a + fibonacci_b * fibonacci_b;
-      fibonacci_b = sqrtl(fibonacci_a + fibonacci_b);
+      fibonacci_b = sqrtl( fibonacci_a + fibonacci_b );
       asm("");
       end = std::chrono::high_resolution_clock::now();
-      elapsed += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      elapsed += std::chrono::duration_cast<std::chrono::nanoseconds>( end - start ).count();
       start = std::chrono::high_resolution_clock::now();
     }
 
@@ -72,20 +82,24 @@ int main(int, char **)
     for ( long i = 0; i < iterations; ++i )
     {
       fibonacci_a = fibonacci_a * fibonacci_a + fibonacci_b * fibonacci_b;
-      fibonacci_b = sqrtl(fibonacci_a + fibonacci_b);
+      fibonacci_b = sqrtl( fibonacci_a + fibonacci_b );
       asm("");
     }
     end = std::chrono::high_resolution_clock::now();
-    long duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    long duration = std::chrono::duration_cast<std::chrono::nanoseconds>( end - start ).count();
 
-    long diff_timer = labs(duration - timer.getElapsedTime());
-    long diff_naive = labs(duration - elapsed);
+    long diff_timer = labs( duration - timer.getElapsedTime());
+    long diff_naive = labs( duration - elapsed );
     std::cout << "Timer:  " << timer.getElapsedTime() << "ns" << std::endl;
     std::cout << "Naive:  " << elapsed << "ns" << std::endl;
     std::cout << "Chrono: " << duration << "ns" << std::endl;
-    std::cout << "Difference Timer: " << diff_timer << " (" << fabs((diff_timer * 1.0 / duration)) * 100 << "%)" << std::endl;
-    std::cout << "Difference Naive: " << diff_naive << " (" << fabs((diff_naive * 1.0 / duration)) * 100 << "%)" << std::endl;
+    std::cout << "Difference Timer: " << diff_timer << " (" << fabs((diff_timer * 1.0 / duration)) * 100 << "%)"
+              << std::endl;
+    std::cout << "Difference Naive: " << diff_naive << " (" << fabs((diff_naive * 1.0 / duration)) * 100 << "%)"
+              << std::endl;
     // Could be improved by using averages and accounting for stddev
   }
+
+  for (int i = 0; i < 10; ++i) someFunction();
   return 0;
 }

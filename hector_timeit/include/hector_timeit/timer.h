@@ -9,9 +9,12 @@
 #include <functional>
 #include <memory>
 #include <vector>
+
 #ifdef __unix__
+
 #include <unistd.h>
 #include <time.h>
+
 #endif
 
 namespace hector_timeit
@@ -79,8 +82,12 @@ public:
    * @param print_time_unit The time unit used for printing. If Default the time unit is automatically chosen.
    * @param autostart If true, the timer starts immediately after construction. If false, it has to be manually started
    *  using the start() method.
+   * @param print_on_destruct If true, prints when the Time object is destructed.
    */
-  explicit Timer( std::string name, TimeUnit print_time_unit = Default, bool autostart = true );
+  explicit Timer( std::string name, TimeUnit print_time_unit = Default, bool autostart = true,
+                  bool print_on_destruct = false );
+
+  ~Timer();
 
   const std::string &name() const { return name_; }
 
@@ -241,13 +248,14 @@ protected:
   TimeUnit print_time_unit_;
   std::chrono::high_resolution_clock::time_point start_a_;
   std::chrono::high_resolution_clock::time_point start_b_;
-  long elapsed_time_;
-  long elapsed_cpu_time_;
-  long cpu_start_a_;
-  long cpu_start_b_;
-  bool running_;
-  bool cpu_time_valid_a_;
-  bool cpu_time_valid_b_;
+  long elapsed_time_ = 0;
+  long elapsed_cpu_time_ = 0;
+  long cpu_start_a_ = 0;
+  long cpu_start_b_ = 0;
+  bool running_ = false;
+  bool cpu_time_valid_a_ = true;
+  bool cpu_time_valid_b_ = true;
+  bool print_on_destruct_ = false;
 };
 
 template<typename T>
@@ -260,6 +268,19 @@ std::unique_ptr<Timer::TimerResult<T>> Timer::time( const std::function<T( void 
     new Timer::TimerResult<T>{ .time = timer.getElapsedTime(), .cpu_time = timer.getElapsedCpuTime(), .result = function_result } );
   return result;
 }
+
+struct TimeBlock
+{
+  explicit TimeBlock( Timer &timer ) : timer_( timer ) { timer_.start(); }
+
+  ~TimeBlock()
+  {
+    timer_.stop();
+    timer_.reset( true );
+  }
+
+  Timer &timer_;
+};
 
 template<>
 struct Timer::TimerResult<void>
@@ -277,7 +298,7 @@ template<>
 std::unique_ptr<Timer::TimerResult<void>> Timer::time<void>( const std::function<void( void )> &function );
 }
 
-std::ostream &operator<<(std::ostream &stream, const hector_timeit::Timer &timer);
+std::ostream &operator<<( std::ostream &stream, const hector_timeit::Timer &timer );
 
 #include "hector_timeit/macros.h"
 

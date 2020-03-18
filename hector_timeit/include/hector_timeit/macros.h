@@ -266,7 +266,7 @@ _HECTOR_TIME_AND_RETURN_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_AND_RETURN_ROS, 
  *
  * @b Usage: HECTOR_TIME_SECTION(Name, Autostart)
  *
- * @param Name The name of the timer. Used for printing the result.
+ * @param Name The name of the timer. Used for printing the result. Valid characters: "a-zA-Z0-9_"
  * @param Autostart (Optional) Pass true to immediately start the timer, pass false to start off as paused. @b Default: true.
  */
 #define HECTOR_TIME_SECTION(...)\
@@ -428,5 +428,28 @@ _HECTOR_TIME_SECTION_PRINT_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_SECTION_PRINT
 _HECTOR_TIME_SECTION_END_AND_PRINT_ROS_GET_MACRO(__VA_ARGS__, _HECTOR_TIME_SECTION_END_AND_PRINT_ROS, _HECTOR_TIME_SECTION_END_AND_PRINT_ROS_INFO)(__VA_ARGS__)
 
 
+/* ******************************************************************** */
+/* *************************** Hector Block *************************** */
+/* ******************************************************************** */
+
+/*!
+ * @define HECTOR_TIME_BLOCK
+ * @brief Times a code block whenever it is executed and prints the result on application exit
+ *
+ * @b Usage: HECTOR_TIME_BLOCK(Name)
+ *
+ * Example:
+ * @code
+ * {
+ *   HECTOR_TIME_BLOCK(SomeExecutionBlock);
+ *   // Do something
+ * }
+ * @endcode
+ *
+ * @param Name The name of the timer. Used for printing the result. Valid characters: "a-zA-Z0-9_"
+ */
+#define HECTOR_TIME_BLOCK(name)\
+  static ::hector_timeit::Timer __block_timer_##name(#name, ::hector_timeit::Timer::Default, false, true);\
+  ::hector_timeit::TimeBlock __block_timer_handle_##name(__block_timer_##name)
 
 #endif //HECTOR_TIMEIT_MACROS_H
