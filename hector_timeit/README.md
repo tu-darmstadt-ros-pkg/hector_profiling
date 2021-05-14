@@ -9,7 +9,7 @@ C++11
 
 ## Examples
 ### Using the class
-Simply timing some code using the default settings: 
+####Simply timing some code using the default settings: 
   
 ```cpp
 hector_timeit::Timer timer("MyTimer");
@@ -19,8 +19,10 @@ std::cout << timer;
 ```
 **Output:**
 > ```[Timer: MyTimer] 1 run(s) took: 215.621ms (Thread: 200.301ms).```
- 
-Timing multiple runs of the same code, e.g., the average run time of the iterations of for loop.
+
+---
+
+####Timing multiple runs of the same code, e.g., the average run time of the iterations of for loop.
 
 ```cpp
 // Pass false to constructor for autostart parameter
@@ -43,6 +45,28 @@ std::cout << timer;
 >     Real           1206.089us +- 60.192us            1639.461us      1085.497us        8.568s       
 >    Thread           116.570us +- 57.334us             586.997us        28.864us       828.112ms  
 >```
+
+
+---
+
+####Timing a method over the lifetime of the application.
+```cpp
+void method() {
+  static hector_timeit::Timer timer("Method", /* Time unit */ hector_timeit::Timer::Default,
+                                    /* autostart */ false, /* print on destruct */ true);
+  hector_timeit::TimeBlock time_block(timer); // Starts the timer on construction, stops and resets for new run on destruction
+  if (isShortRun()) return;
+  doSomethingOtherwise();
+}
+```
+
+**Output:**
+> ```
+>  [Timer: Method] 3116 run(s) took: 
+>   Type             Mean (+/- stddev)                Longest         Shortest          Sum       
+>   Real          3677.635us +- 1322.188us            52.546ms       1200.870us       11.460s     
+>  Thread         3466.021us +- 1233.368us            52.215ms       1130.026us       10.800s
+> ```
 
 ### Using the macros
 ####Timing the execution of code

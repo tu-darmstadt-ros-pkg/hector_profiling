@@ -20,7 +20,7 @@ Timer::Timer( std::string name, TimeUnit print_time_unit, bool autostart, bool p
 
 Timer::~Timer()
 {
-  if ( print_on_destruct_ ) std::cout << *this << std::endl;
+  if ( print_on_destruct_ ) std::cout << *this << std::endl << std::flush;
 }
 
 void Timer::reset( bool new_run )
